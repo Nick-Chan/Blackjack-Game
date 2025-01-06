@@ -1,0 +1,184 @@
+﻿@page "/"
+@using System.Text.Json
+
+<h3>Blackjack</h3>
+
+<div>
+    <h4>Your Hand:</h4>
+    <div class="player-hand">
+        @foreach (var card in PlayerHand)
+        {
+            <img src=$"/images/cards/2_of_clubs.png" alt="@card" class="card-image" />
+        }
+    </div>
+    <h4>Your Score: @PlayerScore</h4>
+</div>
+
+<div>
+    <h4>Dealer's Hand:</h4>
+    <div class="dealer-hand">
+        @foreach (var card in DealerHand)
+        {
+            <img src=$"/images/cards/@CardImageFileName(card)" alt="@card" class="card-image" />
+        }
+    </div>
+    <h4>Dealer Score: @DealerScore</h4>
+</div>
+
+@if (!GameOver)
+{
+    <button @onclick="Hit">Hit</button>
+    <button @onclick="Stand">Stand</button>
+}
+else
+{
+    <h4>@ResultMessage</h4>
+    <button @onclick="RestartGame">Restart Game</button>
+}
+
+@code {
+    private List<string> PlayerHand = new();
+    private List<string> DealerHand = new();
+    private int PlayerScore = 0;
+    private int DealerScore = 0;
+    private bool GameOver = false;
+    private string ResultMessage = "";
+    private List<string> Deck = new();
+
+    private void InitializeGame()
+    {
+        Deck = GenerateDeck();
+        ShuffleDeck();
+
+        PlayerHand.Clear();
+        DealerHand.Clear();
+
+        // Initial deal: two cards for player and one for dealer
+        PlayerHand.Add(DrawCard());
+        PlayerHand.Add(DrawCard());
+        DealerHand.Add(DrawCard());
+
+        CalculateScores();
+
+        GameOver = false;
+        ResultMessage = "";
+    }
+
+    private List<string> GenerateDeck()
+    {
+        string[] suits = { "hearts", "diamonds", "clubs", "spades" };
+        string[] ranks = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "jack", "queen", "king", "ace" };
+
+        return suits
+            .SelectMany(suit => ranks.Select(rank => $"{rank}_of_{suit}"))
+            .ToList();
+    }
+
+    private void ShuffleDeck()
+    {
+        var rng = new Random();
+        Deck = Deck.OrderBy(_ => rng.Next()).ToList();
+    }
+
+    private string DrawCard()
+    {
+        if (Deck.Count == 0) throw new InvalidOperationException("The deck is empty!");
+        string card = Deck[0];
+        Deck.RemoveAt(0);
+        return card;
+    }
+
+    private int GetCardValue(string card)
+    {
+        string rank = card.Split('_')[0];
+
+        return rank switch
+        {
+            "ace" => 11,  // Adjust later if needed
+            "king" or "queen" or "jack" => 10,
+            _ => int.Parse(rank)
+        };
+    }
+
+    private void CalculateScores()
+    {
+        PlayerScore = CalculateHandScore(PlayerHand);
+        DealerScore = CalculateHandScore(DealerHand);
+
+        if (PlayerScore > 21)
+        {
+            ResultMessage = "You busted! Dealer wins.";
+            GameOver = true;
+        }
+        else if (PlayerScore == 21)
+        {
+            ResultMessage = "Blackjack! You win!";
+            GameOver = true;
+        }
+    }
+
+    private int CalculateHandScore(List<string> hand)
+    {
+        int score = hand.Sum(card => GetCardValue(card));
+        int aceCount = hand.Count(card => card.Contains("ace"));
+
+        while (score > 21 && aceCount > 0)
+        {
+            score -= 10;
+            aceCount--;
+        }
+
+        return score;
+    }
+
+    private void Hit()
+    {
+        if (GameOver) return;
+
+        PlayerHand.Add(DrawCard());
+        CalculateScores();
+    }
+
+    private void Stand()
+    {
+        if (GameOver) return;
+
+        while (DealerScore < 17)
+        {
+            DealerHand.Add(DrawCard());
+            DealerScore = CalculateHandScore(DealerHand);
+        }
+
+        if (DealerScore > 21 || PlayerScore > DealerScore)
+        {
+            ResultMessage = "You win!";
+        }
+        else if (PlayerScore < DealerScore)
+        {
+            ResultMessage = "Dealer wins.";
+        }
+        else
+        {
+            ResultMessage = "It's a tie!";
+        }
+
+        GameOver = true;
+    }
+
+    private void RestartGame()
+    {
+        InitializeGame();
+    }
+
+    protected override void OnInitialized()
+    {
+        InitializeGame();
+    }
+
+    private string CardImageFileName(string card)
+    {
+        return $"{card}.png";
+
+        Console.WriteLine($"{card}.png");
+    }
+}
