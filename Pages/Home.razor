@@ -3,12 +3,14 @@
 
 <h3>Blackjack</h3>
 
+<h4>Balance: $@PlayerBalance</h4>
+
 <div>
     <h4>Your Hand:</h4>
     <div class="player-hand">
         @foreach (var card in PlayerHand)
         {
-            <img src=$"/images/cards/2_of_clubs.png" alt="@card" class="card-image" />
+            <img src=$"/images/cards/@CardImageFileName(card)" alt="@card" class="card-image" />
         }
     </div>
     <h4>Your Score: @PlayerScore</h4>
@@ -33,7 +35,11 @@
 else
 {
     <h4>@ResultMessage</h4>
-    <button @onclick="RestartGame">Restart Game</button>
+    <button @onclick="RestartGame">Play Again</button>
+    @if (PlayerBalance < 10)
+    {
+        <p>You are out of money! Refresh the page to start over.</p>
+    }
 }
 
 @code {
@@ -44,14 +50,26 @@ else
     private bool GameOver = false;
     private string ResultMessage = "";
     private List<string> Deck = new();
+    private int PlayerBalance = 100;
+    private const int BetAmount = 10;
 
     private void InitializeGame()
     {
+        if (PlayerBalance < BetAmount)
+        {
+            ResultMessage = "You are out of money!";
+            GameOver = true;
+            return;
+        }
+
         Deck = GenerateDeck();
         ShuffleDeck();
 
         PlayerHand.Clear();
         DealerHand.Clear();
+
+        // Deduct the bet amount
+        PlayerBalance -= BetAmount;
 
         // Initial deal: two cards for player and one for dealer
         PlayerHand.Add(DrawCard());
@@ -113,6 +131,7 @@ else
         else if (PlayerScore == 21)
         {
             ResultMessage = "Blackjack! You win!";
+            PlayerBalance += BetAmount * 2; // Win doubles the bet
             GameOver = true;
         }
     }
@@ -152,6 +171,7 @@ else
         if (DealerScore > 21 || PlayerScore > DealerScore)
         {
             ResultMessage = "You win!";
+            PlayerBalance += BetAmount * 2; // Win doubles the bet
         }
         else if (PlayerScore < DealerScore)
         {
@@ -160,6 +180,7 @@ else
         else
         {
             ResultMessage = "It's a tie!";
+            PlayerBalance += BetAmount; // Tie returns the bet
         }
 
         GameOver = true;
@@ -178,7 +199,5 @@ else
     private string CardImageFileName(string card)
     {
         return $"{card}.png";
-
-        Console.WriteLine($"{card}.png");
     }
 }
