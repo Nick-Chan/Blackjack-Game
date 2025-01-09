@@ -10,7 +10,7 @@
     <div class="player-hand">
         @foreach (var card in PlayerHand)
         {
-            <img src=$"/images/cards/@CardImageFileName(card)" alt="@card" class="card-image" />
+            <img src="images/cards/@CardImageFileName(card)" alt="@card" class="card-image" />
         }
     </div>
     <h4>Your Score: @PlayerScore</h4>
@@ -21,26 +21,35 @@
     <div class="dealer-hand">
         @foreach (var card in DealerHand)
         {
-            <img src=$"/images/cards/@CardImageFileName(card)" alt="@card" class="card-image" />
+            <img src="images/cards/@CardImageFileName(card)" alt="@card" class="card-image" />
         }
     </div>
     <h4>Dealer Score: @DealerScore</h4>
 </div>
 
-@if (!GameOver)
+@if (GameOver)
 {
-    <button @onclick="Hit">Hit</button>
-    <button @onclick="Stand">Stand</button>
+    <div class="result-message">
+        <h4>@ResultMessage</h4>
+        @if (PlayerBalance < 10)
+        {
+            <p>You are out of money! Refresh the page to start over.</p>
+        }
+    </div>
 }
-else
-{
-    <h4>@ResultMessage</h4>
-    <button @onclick="RestartGame">Play Again</button>
-    @if (PlayerBalance < 10)
+
+<div class="action-buttons">
+    @if (!GameOver)
     {
-        <p>You are out of money! Refresh the page to start over.</p>
+        <button @onclick="Hit">Hit</button>
+        <button @onclick="Stand">Stand</button>
     }
-}
+    else
+    {
+        <button @onclick="RestartGame">Play Again</button>
+    }
+</div>
+
 
 @code {
     private List<string> PlayerHand = new();
