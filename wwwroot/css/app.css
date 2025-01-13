@@ -31,6 +31,96 @@ h3 {
     box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.6);
 }
 
+/* Container for the bet options */
+.choose-bet-container {
+    text-align: center;
+    margin: 20px 0;
+    color: #ffffff;
+    font-size: 1.2rem;
+}
+
+/* Bet buttons */
+.bet-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+    .bet-buttons button {
+        background-color: #ffd700;
+        color: #1e1e1e;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 20px;
+        font-size: 1rem;
+        cursor: pointer;
+        margin: 5px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+        transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+    }
+
+        .bet-buttons button:hover {
+            background-color: #ffc700;
+            transform: scale(1.05);
+        }
+
+        .bet-buttons button:active {
+            background-color: #e6b800;
+        }
+
+/* Custom bet input */
+.custom-bet {
+    margin-top: 20px;
+}
+
+    .custom-bet label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 1rem;
+        color: #ddd;
+    }
+
+    .custom-bet input {
+        width: 150px;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1rem;
+        margin-right: 10px;
+        text-align: center;
+        background-color: #2a2a2a;
+        color: #fff;
+    }
+
+        .custom-bet input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0px 0px 5px rgba(255, 215, 0, 0.7);
+        }
+
+    .custom-bet button {
+        background-color: #ffd700;
+        color: #1e1e1e;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 20px;
+        font-size: 1rem;
+        cursor: pointer;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+        transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+    }
+
+        .custom-bet button:hover {
+            background-color: #ffc700;
+            transform: scale(1.05);
+        }
+
+        .custom-bet button:active {
+            background-color: #e6b800;
+        }
+
+
 /* Hands Display */
 .player-hand, .dealer-hand {
     display: flex;

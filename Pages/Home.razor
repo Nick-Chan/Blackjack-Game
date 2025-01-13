@@ -5,63 +5,84 @@
 
 <h4>Balance: $@PlayerBalance</h4>
 
-<div>
-    <h4>Your Hand:</h4>
-    <div class="player-hand">
-        @foreach (var card in PlayerHand)
-        {
-            <img src="images/cards/@CardImageFileName(card)" alt="@card" class="card-image" />
-        }
-    </div>
-    <h4>Your Score: @PlayerScore</h4>
-</div>
-
-<div>
-    <h4>Dealer's Hand:</h4>
-    <div class="dealer-hand">
-        @foreach (var card in DealerHand)
-        {
-            <img src="images/cards/@CardImageFileName(card)" alt="@card" class="card-image" />
-        }
-    </div>
-    <h4>Dealer Score: @DealerScore</h4>
-</div>
-
-@if (GameOver)
+@if (ChooseBet)
 {
-    <div class="result-message">
-        <h4>@ResultMessage</h4>
-        @if (PlayerBalance < 1)
+    <div class="choose-bet-container">
+        <p>Choose your bet amount:</p>
+
+        <div class="bet-buttons">
+            <button @onclick="() => SetBet(10)">$10</button>
+            <button @onclick="() => SetBet(20)">$20</button>
+            <button @onclick="() => SetBet(50)">$50</button>
+            <button @onclick="() => SetBet(100)">$100</button>
+        </div>
+
+        <div class="custom-bet">
+            <label for="customBet">Custom Bet:</label>
+            <input type="number" id="customBet" name="customBet" @bind="CustomBetAmount" min="10" step="10" />
+            <button @onclick="SetCustomBet">Place Custom Bet</button>
+        </div>
+    </div>
+}
+else
+{
+    <div>
+        <h4>Your Hand:</h4>
+        <div class="player-hand">
+            @foreach (var card in PlayerHand)
+            {
+                <img src="images/cards/@CardImageFileName(card)" alt="@card" class="card-image" />
+            }
+        </div>
+        <h4>Your Score: @PlayerScore</h4>
+    </div>
+
+    <div>
+        <h4>Dealer's Hand:</h4>
+        <div class="dealer-hand">
+            @foreach (var card in DealerHand)
+            {
+                <img src="images/cards/@CardImageFileName(card)" alt="@card" class="card-image" />
+            }
+        </div>
+        <h4>Dealer Score: @DealerScore</h4>
+    </div>
+
+    @if (GameOver)
+    {
+        <div class="result-message">
+            <h4>@ResultMessage</h4>
+            @if (PlayerBalance < 1)
+            {
+                <p>You are out of money! Restart to start over.</p>
+            }
+        </div>
+    }
+
+    <div class="action-buttons">
+        @if (!GameOver)
         {
-            <p>You are out of money! Restart to start over.</p>
+            <button @onclick="Hit">Hit</button>
+            <button @onclick="Stand">Stand</button>
+            <button @onclick="DoubleUp">Double</button>
+        }
+        else if (IsSplit)
+        {
+            <button @onclick="Hit">Hit</button>
+            <button @onclick="Stand">Stand</button>
+            <button @onclick="DoubleUp">Double</button>
+            <button @onclick="Split">Split</button>
+        }
+        else if (PlayerBalance < 1)
+        {
+            <button @onclick="RestartGame">Restart</button>
+        }
+        else
+        {
+            <button @onclick="NextHand">Next Hand</button>
         }
     </div>
 }
-
-<div class="action-buttons">
-    @if (!GameOver)
-    {
-        <button @onclick="Hit">Hit</button>
-        <button @onclick="Stand">Stand</button>
-        <button @onclick="DoubleUp">Double</button>
-    }
-    else if (IsSplit)
-    {
-        <button @onclick="Hit">Hit</button>
-        <button @onclick="Stand">Stand</button>
-        <button @onclick="DoubleUp">Double</button>
-        <button @onclick="Split">Split</button>
-    }
-    else if (PlayerBalance < 1)
-    {
-        <button @onclick="RestartGame">Restart</button>
-    }
-    else
-    {
-        <button @onclick="NextHand">Next Hand</button>
-    }
-</div>
-
 
 @code {
     private List<string> PlayerHand = new();
@@ -71,13 +92,17 @@
     private string ResultMessage = "";
     private List<string> Deck = new();
     private int PlayerBalance = 100;
-    private const int BetAmount = 10;
+    private int CustomBetAmount { get; set; } = 10;
+    private int BetAmount = 10;
 
+    private bool ChooseBet = true;
     private bool GameOver = false;
     private bool IsSplit = false;
 
-    private void InitializeGame()
+    private void InitializeGame(int amount)
     {
+        ChooseBet = false;
+
         if (PlayerBalance < BetAmount)
         {
             ResultMessage = "You are out of money!";
@@ -92,17 +117,36 @@
         DealerHand.Clear();
 
         // Deduct the bet amount
-        PlayerBalance -= BetAmount;
+        BetAmount = amount;
 
         // Initial deal: two cards for player and one for dealer
         PlayerHand.Add(DrawCard());
         PlayerHand.Add(DrawCard());
         DealerHand.Add(DrawCard());
 
-        CalculateScores();
+        CalculateScores(amount);
 
         GameOver = false;
         ResultMessage = "";
+    }
+
+    private void SetBet(int amount)
+    {
+        PlayerBalance -= amount;
+        InitializeGame(amount);
+    }
+
+    private void SetCustomBet()
+    {
+        if (CustomBetAmount >= 10 && CustomBetAmount <= PlayerBalance)
+        {
+            PlayerBalance -= CustomBetAmount;
+            InitializeGame(CustomBetAmount);
+        }
+        else
+        {
+            Console.WriteLine("Invalid custom bet amount.");
+        }
     }
 
     private List<string> GenerateDeck()
@@ -141,7 +185,7 @@
         };
     }
 
-    private void CalculateScores()
+    private void CalculateScores(int amount)
     {
         PlayerScore = CalculateHandScore(PlayerHand);
         DealerScore = CalculateHandScore(DealerHand);
@@ -154,7 +198,7 @@
         else if (PlayerScore == 21)
         {
             ResultMessage = "Blackjack! You win!";
-            PlayerBalance += BetAmount * 2; // Win doubles the bet
+            PlayerBalance += amount * 2; // Win doubles the bet
             GameOver = true;
         }
     }
@@ -178,7 +222,7 @@
         if (GameOver) return;
 
         PlayerHand.Add(DrawCard());
-        CalculateScores();
+        CalculateScores(BetAmount);
     }
 
     private void Stand()
@@ -214,7 +258,6 @@
         if (GameOver) return;
 
         PlayerHand.Add(DrawCard());
-        CalculateScores();
     }
 
     private void DoubleUp()
@@ -222,24 +265,16 @@
         if (GameOver) return;
 
         PlayerHand.Add(DrawCard());
-        CalculateScores();
     }
 
     private void RestartGame()
     {
         PlayerBalance = 100;
-
-        InitializeGame();
     }
 
     private void NextHand()
     {
-        InitializeGame();
-    }
-
-    protected override void OnInitialized()
-    {
-        InitializeGame();
+        ChooseBet = true;
     }
 
     private string CardImageFileName(string card)
