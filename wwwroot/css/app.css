@@ -150,6 +150,32 @@ h4 {
     color: #ddd;
 }
 
+    h4.balance {
+        color: #28a745;
+        font-size: 1.4rem;
+        font-weight: bold;
+        text-align: center;
+        margin: 10px 0;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+    }
+
+    h4.bet-amount {
+        color: #ffa500;
+        font-size: 1.4rem;
+        font-weight: bold;
+        text-align: center;
+        margin: 5px 0;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+    }
+
+    h4.result-message {
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #ff6b6b;
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+    }
+
 .result-message {
     text-align: center;
     font-size: 1.5rem;
