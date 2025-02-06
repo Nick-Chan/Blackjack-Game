@@ -1,6 +1,6 @@
 # Blackjack Game
 
-A simple one-player **Blackjack** game built with **Blazor WebAssembly** (frontend) and **C# .NET** (backend). The game follows standard Blackjack rules, allowing the player to **hit, stand, double down, and split pairs**. The goal is to beat the dealer without going over 21.
+A simple one player **Blackjack** game built with **Blazor WebAssembly C# .NET**. The game follows the standard Blackjack rules, allowing the player to **hit, stand, double down, and split pairs**.
 
 ---
 
